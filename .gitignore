@@ -12,3 +12,6 @@ local.properties
 /app/release
 *.apk
 *.aab
+/.artifacts
+/.kotlin
+gradle/wrapper/gradle-wrapper.jar
