@@ -1,0 +1,10 @@
+-keep class com.akshatmodz.panel.** { *; }
+-keepattributes Signature, *Annotation*, EnclosingMethod, InnerClasses
+-keepclassmembers class kotlinx.serialization.json.** { *** Companion; }
+-keepclasseswithmembers class kotlinx.serialization.json.** { kotlinx.serialization.KSerializer serializer(...); }
+-keep,includedescriptorclasses class com.akshatmodz.panel.**$$serializer { *; }
+-keep class androidx.security.crypto.** { *; }
+-dontwarn com.google.errorprone.annotations.CanIgnoreReturnValue
+-dontwarn com.google.errorprone.annotations.CheckReturnValue
+-dontwarn com.google.errorprone.annotations.Immutable
+-dontwarn com.google.errorprone.annotations.RestrictedApi

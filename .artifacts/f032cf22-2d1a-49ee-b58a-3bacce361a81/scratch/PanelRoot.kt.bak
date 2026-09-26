@@ -1,0 +1,3060 @@
+package com.akshatmodz.panel.ui.app
+
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
+import android.net.Uri
+import android.provider.OpenableColumns
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Logout
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.AdminPanelSettings
+import androidx.compose.material.icons.filled.Badge
+import androidx.compose.material.icons.filled.Block
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.ContentCopy
+import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Equalizer
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.SportsEsports
+import androidx.compose.material.icons.filled.Key
+import androidx.compose.material.icons.filled.LockReset
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material.icons.filled.RestartAlt
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.AssistChip
+import androidx.compose.material3.AssistChipDefaults
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DatePickerDefaults
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.LocalTextStyle
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
+import androidx.compose.material3.DatePicker
+
+import androidx.compose.material3.rememberDatePickerState
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.akshatmodz.panel.data.AdminUserItem
+import com.akshatmodz.panel.data.GameItem
+import com.akshatmodz.panel.data.KeyGenerateResponse
+import com.akshatmodz.panel.data.KeyItem
+import com.akshatmodz.panel.data.ReferralItem
+import com.akshatmodz.panel.data.ApiException
+import com.akshatmodz.panel.data.RemoteClient
+import com.akshatmodz.panel.data.SessionManager
+import com.akshatmodz.panel.data.UserProfile
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+
+private enum class Destination(val label: String, val icon: ImageVector) {
+    KEYS("Keys", Icons.Default.Key),
+    GAMES("Games", Icons.Default.SportsEsports),
+    ADMIN("Admin", Icons.Default.AdminPanelSettings),
+    REFERRALS("Referrals", Icons.Default.Share),
+    ACCOUNT("Account", Icons.Default.Person)
+}
+
+private enum class AuthMode { SIGN_IN, SIGN_UP }
+
+private data class GenerateForm(
+    val game: String = "",
+    val duration: Int = 7,
+    val devices: String = "1",
+    val customKey: String = ""
+)
+
+private data class ConfirmAction(
+    val kind: String,
+    val key: KeyItem? = null,
+    val user: AdminUserItem? = null
+)
+
+private data class AdminEditForm(
+    val user: AdminUserItem,
+    val username: String = user.username,
+    val email: String = user.email,
+    val saldo: String = user.saldo.toString(),
+    val level: String = user.level.toString(),
+    val status: Boolean = user.status == 1
+)
+
+private data class PanelUiState(
+    val booting: Boolean = true,
+    val token: String? = null,
+    val destination: Destination = Destination.KEYS,
+    val authMode: AuthMode = AuthMode.SIGN_IN,
+    val email: String = "",
+    val password: String = "",
+    val confirmPassword: String = "",
+    val username: String = "",
+    val referralCode: String = "",
+    val rememberMe: Boolean = false,
+    val loading: Boolean = false,
+    val loadingGames: Boolean = false,
+    val loadingKeys: Boolean = false,
+    val loadingProfile: Boolean = false,
+    val loadingReferrals: Boolean = false,
+    val loadingAdmin: Boolean = false,
+    val gamesLoaded: Boolean = false,
+    val profile: UserProfile? = null,
+
+    val keys: List<KeyItem> = emptyList(),
+    val games: List<GameItem> = emptyList(),
+    val referrals: List<ReferralItem> = emptyList(),
+    val adminUsers: List<AdminUserItem> = emptyList(),
+    val keySearch: String = "",
+    val keyGameFilter: String = "ALL",
+    val adminSearch: String = "",
+    val revealKeys: Boolean = false,
+    val generateForm: GenerateForm = GenerateForm(),
+    val generatedKey: KeyGenerateResponse? = null,
+    val referralGrant: String = "",
+    val keysPage: Int = 1,
+    val keysTotal: Int = 0,
+
+    val currentPassword: String = "",
+    val newPassword: String = "",
+    val confirmNewPassword: String = "",
+    val adminEdit: AdminEditForm? = null,
+    val confirmAction: ConfirmAction? = null,
+    val datePickerForKey: KeyItem? = null,
+    val libName: String = "",
+    val uploadProgress: Int = -1,
+    val overwriteLibName: String? = null,
+    val overwriteLibBytes: ByteArray? = null,
+    val message: String? = null
+)
+
+private class PanelViewModel(
+    private val sessionManager: SessionManager,
+    private val mode: PanelRootMode
+) : ViewModel() {
+    private val _state = MutableStateFlow(PanelUiState())
+    val state = _state.asStateFlow()
+    private var currentJob: Job? = null
+    private var refreshJob: Job? = null
+
+    companion object {
+        val prices = mapOf(1 to 1, 3 to 3, 7 to 6, 14 to 10, 30 to 16)
+    }
+
+    init {
+        restore()
+    }
+
+    fun setAuthMode(mode: AuthMode) {
+        _state.value = _state.value.copy(authMode = mode, message = null)
+    }
+
+    fun updateAuth(
+        email: String? = null,
+        password: String? = null,
+        confirm: String? = null,
+        username: String? = null,
+        referral: String? = null,
+        remember: Boolean? = null
+    ) {
+        if (remember == false) sessionManager.clearRememberedCredentials()
+        _state.value = _state.value.copy(
+            email = email?.trim()?.take(120) ?: _state.value.email,
+            password = password ?: _state.value.password,
+            confirmPassword = confirm ?: _state.value.confirmPassword,
+            username = username?.filter { it.isLetterOrDigit() || it == '_' }?.take(32)
+                ?: _state.value.username,
+            referralCode = referral?.trim()?.take(64) ?: _state.value.referralCode,
+            rememberMe = remember ?: _state.value.rememberMe,
+            message = null
+        )
+    }
+
+    fun select(destination: Destination) {
+        _state.value = _state.value.copy(destination = destination, message = null)
+        refresh(destination)
+    }
+
+    fun refreshCurrent() = refresh(_state.value.destination)
+
+    private var searchJob: Job? = null
+
+    fun updateKeySearch(value: String) {
+        _state.value = _state.value.copy(keySearch = value.trim().take(64))
+        searchJob?.cancel()
+        searchJob = viewModelScope.launch {
+            delay(400)
+            if (_state.value.keySearch == value.trim().take(64)) {
+                refresh(Destination.KEYS)
+            }
+        }
+    }
+
+    fun updateKeyGameFilter(game: String) {
+        _state.value = _state.value.copy(keyGameFilter = game)
+    }
+
+    fun toggleReveal() {
+        _state.value = _state.value.copy(revealKeys = !_state.value.revealKeys)
+    }
+
+    fun updateGenerate(form: GenerateForm) {
+        val gameCodes = _state.value.games.map { it.code }
+        val defaultGame = gameCodes.firstOrNull() ?: "PUBG"
+        _state.value = _state.value.copy(
+            generateForm = form.copy(
+                game = form.game.takeIf { it in gameCodes } ?: defaultGame,
+                duration = form.duration.takeIf { prices.containsKey(it) } ?: 7,
+                devices = form.devices.filter { it.isDigit() }.take(3),
+                customKey = form.customKey.filter { it.isLetterOrDigit() || it == '-' || it == '_' }
+                    .uppercase().take(32)
+            ),
+            message = null
+        )
+    }
+
+    fun updateReferralGrant(value: String) {
+        _state.value = _state.value.copy(referralGrant = value.filter { it.isDigit() }.take(6))
+    }
+
+    fun updateAccount(
+        current: String? = null,
+        newPassword: String? = null,
+        confirm: String? = null
+    ) {
+        _state.value = _state.value.copy(
+            currentPassword = current ?: _state.value.currentPassword,
+            newPassword = newPassword ?: _state.value.newPassword,
+            confirmNewPassword = confirm ?: _state.value.confirmNewPassword
+        )
+    }
+
+    fun showAdminEdit(user: AdminUserItem?) {
+        _state.value = _state.value.copy(adminEdit = user?.let { AdminEditForm(it) })
+    }
+
+    fun updateAdminEdit(form: AdminEditForm) {
+        _state.value = _state.value.copy(
+            adminEdit = form.copy(
+                username = form.username.filter { it.isLetterOrDigit() || it == '_' }.take(32),
+                email = form.email.trimStart().take(80),
+                saldo = form.saldo.filter { it.isDigit() }.take(9),
+                level = form.level.filter { it.isDigit() }.take(1)
+            )
+        )
+    }
+
+    fun updateAdminSearch(value: String) {
+        _state.value = _state.value.copy(adminSearch = value.trim().take(64))
+        searchJob?.cancel()
+        searchJob = viewModelScope.launch {
+            delay(400)
+            if (_state.value.adminSearch == value.trim().take(64)) {
+                refresh(Destination.ADMIN)
+            }
+        }
+    }
+
+    fun submitAuth() {
+        val snapshot = _state.value
+        if (snapshot.email.isBlank() || snapshot.password.isBlank()) {
+            _state.value = snapshot.copy(message = "Email and password are required")
+            return
+        }
+        if (!isValidEmail(snapshot.email)) {
+            _state.value = snapshot.copy(message = "Enter a valid email")
+            return
+        }
+        if (snapshot.authMode == AuthMode.SIGN_UP && snapshot.password.length < 6) {
+            _state.value = snapshot.copy(message = "Password must be at least 6 characters")
+            return
+        }
+        runTask {
+            if (snapshot.authMode == AuthMode.SIGN_UP) {
+                if (!isValidUsername(snapshot.username)) throw IllegalArgumentException("Username must be 3-32 letters, numbers, or underscores")
+                RemoteClient.signup(
+                    snapshot.email,
+                    snapshot.password,
+                    snapshot.username,
+                    referral = snapshot.referralCode
+                )
+                val login = RemoteClient.login(snapshot.email, snapshot.password)
+                val username =
+                    login.user.userMetadata.username.ifEmpty { login.user.appMetadata.username.ifEmpty { snapshot.username } }
+                val fullname = login.user.userMetadata.fullname.ifEmpty { username }
+                val level =
+                    login.user.appMetadata.userlevel.ifEmpty { login.user.userMetadata.level.toString() }
+                sessionManager.saveSession(
+                    login.accessToken,
+                    username,
+                    level,
+                    fullname,
+                    snapshot.email
+                )
+                loadWorkspace(login.accessToken)
+                _state.value = _state.value.copy(token = login.accessToken, password = "", confirmPassword = "")
+                return@runTask
+            }
+            val login = RemoteClient.login(snapshot.email, snapshot.password)
+            val username =
+                login.user.userMetadata.username.ifEmpty { login.user.appMetadata.username.ifEmpty { snapshot.username } }
+            val fullname = login.user.userMetadata.fullname.ifEmpty { username }
+            val level =
+                login.user.appMetadata.userlevel.ifEmpty { login.user.userMetadata.level.toString() }
+            if (snapshot.rememberMe) {
+                sessionManager.saveRememberedCredentials(snapshot.email, snapshot.password)
+            } else {
+                sessionManager.clearRememberedCredentials()
+            }
+            sessionManager.saveSession(login.accessToken, username, level, fullname, snapshot.email)
+            loadWorkspace(login.accessToken)
+            _state.value = _state.value.copy(token = login.accessToken)
+        }
+    }
+
+    fun setError(msg: String) {
+        _state.value = _state.value.copy(message = msg)
+    }
+
+    fun dismissError() {
+        _state.value = _state.value.copy(message = null)
+    }
+
+    fun signOut() {
+        viewModelScope.launch {
+            sessionManager.clear()
+            _state.value = PanelUiState(booting = false)
+        }
+    }
+
+    fun generateKey() {
+        val snapshot = _state.value
+        val token = snapshot.token ?: return
+        val form = snapshot.generateForm
+        val deviceCount = form.devices.toIntOrNull()
+        if (deviceCount == null || deviceCount !in 1..100) {
+            _state.value = snapshot.copy(message = "Devices must be between 1 and 100")
+            return
+        }
+        if (!prices.containsKey(form.duration)) {
+            _state.value = snapshot.copy(message = "Choose a valid duration")
+            return
+        }
+        if (_state.value.games.none { it.code == form.game }) {
+            _state.value = snapshot.copy(message = "Choose a valid game")
+            return
+        }
+        val price = priceFor(form)
+        if ((snapshot.profile?.saldo ?: 0) < price) {
+            _state.value = snapshot.copy(message = "Insufficient balance")
+            return
+        }
+        runTask {
+            val generated = RemoteClient.generateKey(
+                token,
+                form.game,
+                form.duration,
+                deviceCount,
+                form.customKey.ifBlank { null })
+            _state.value = _state.value.copy(generatedKey = generated, message = "Key generated")
+            reloadKeys(token)
+            reloadProfile(token)
+        }
+    }
+
+    fun dismissGenerated() {
+        _state.value = _state.value.copy(generatedKey = null)
+    }
+
+    fun resetKeyDevices(key: KeyItem) {
+        val token = _state.value.token ?: return
+        runTask {
+            RemoteClient.editKey(token, key.idKeys, devices = "")
+            reloadKeys(token)
+        }
+    }
+
+    fun clearKeyExpiry(key: KeyItem) {
+        val token = _state.value.token ?: return
+        runTask {
+            RemoteClient.editKey(token, key.idKeys, expiredDate = "")
+            reloadKeys(token)
+        }
+    }
+
+    fun requestConfirm(kind: String, key: KeyItem? = null, user: AdminUserItem? = null) {
+        _state.value = _state.value.copy(confirmAction = ConfirmAction(kind, key, user))
+    }
+
+    fun dismissConfirm() {
+        _state.value = _state.value.copy(confirmAction = null)
+    }
+
+    fun executeConfirmed() {
+        val action = _state.value.confirmAction ?: return
+        _state.value = _state.value.copy(confirmAction = null)
+        when (action.kind) {
+            "deleteKey" -> action.key?.let { deleteKey(it) }
+            "resetDevices" -> action.key?.let { resetKeyDevices(it) }
+            "deleteAdmin" -> action.user?.let { deleteAdminUser(it) }
+            "bulkDeleteAll" -> runBulk("delete_all")
+            "bulkDeleteExpired" -> runBulk("delete_expired")
+            "bulkDeleteUnused" -> runBulk("delete_unused")
+            "bulkResetAll" -> runBulk("reset_all")
+        }
+    }
+
+    fun requestDatePicker(key: KeyItem) {
+        _state.value = _state.value.copy(datePickerForKey = key)
+    }
+
+    fun createGame(code: String, displayName: String, libName: String = "") {
+        if (_state.value.profile?.level != 1) {
+            _state.value = _state.value.copy(message = "Only admins can add games")
+            return
+        }
+        val token = _state.value.token ?: return
+        runTask {
+            RemoteClient.createGame(token, code, displayName, libName)
+            loadGames(token)
+        }
+    }
+
+    fun updateLibName(name: String) {
+        _state.value = _state.value.copy(
+            libName = name.filter { it.isLetterOrDigit() || it == '_' || it == '-' || it == '.' }.take(64)
+        )
+    }
+
+    fun uploadLib(token: String, fileBytes: ByteArray, libName: String) {
+        currentJob?.cancel()
+        currentJob = viewModelScope.launch {
+            try {
+                val exists = RemoteClient.checkLibExists(token, libName)
+                if (exists) {
+                    _state.value = _state.value.copy(overwriteLibName = libName, overwriteLibBytes = fileBytes)
+                    return@launch
+                }
+            } catch (_: Exception) {}
+            doUploadLib(token, fileBytes, libName)
+        }
+    }
+
+    private suspend fun doUploadLib(token: String, fileBytes: ByteArray, libName: String) {
+        _state.value = _state.value.copy(message = null, uploadProgress = 0)
+        try {
+            RemoteClient.uploadLib(token, libName, fileBytes, onProgress = { progress ->
+                _state.value = _state.value.copy(uploadProgress = (progress * 100).toInt())
+            })
+            _state.value = _state.value.copy(libName = "", uploadProgress = -1, message = "Lib uploaded")
+        } catch (error: CancellationException) {
+            _state.value = _state.value.copy(uploadProgress = -1)
+            throw error
+        } catch (error: Exception) {
+            _state.value = _state.value.copy(uploadProgress = -1, message = error.message ?: "Upload failed")
+        }
+    }
+
+    fun confirmOverwriteLib() {
+        val libName = _state.value.overwriteLibName ?: return
+        val bytes = _state.value.overwriteLibBytes ?: return
+        val token = _state.value.token ?: return
+        _state.value = _state.value.copy(overwriteLibName = null, overwriteLibBytes = null, message = null)
+        currentJob?.cancel()
+        currentJob = viewModelScope.launch {
+            try { RemoteClient.deleteStorageObject(token, libName) } catch (_: Exception) {}
+            doUploadLib(token, bytes, libName)
+        }
+    }
+
+    fun dismissOverwriteLib() {
+        _state.value = _state.value.copy(overwriteLibName = null, overwriteLibBytes = null)
+    }
+
+    fun deleteGame(code: String) {
+        val token = _state.value.token ?: return
+        runTask {
+            RemoteClient.deleteGame(token, code)
+            loadGames(token)
+        }
+    }
+
+    fun updateGame(code: String, displayName: String? = null, libName: String? = null, active: Boolean? = null) {
+        val token = _state.value.token ?: return
+        runTask {
+            RemoteClient.updateGame(token, code, displayName, libName, active)
+            loadGames(token)
+        }
+    }
+
+    fun dismissDatePicker() {
+        _state.value = _state.value.copy(datePickerForKey = null)
+    }
+
+    fun setKeyExpiry(idKeys: Int, date: String) {
+        val token = _state.value.token ?: return
+        runTask {
+            RemoteClient.editKey(token, idKeys, expiredDate = date)
+            reloadKeys(token)
+        }
+    }
+
+    fun deleteKey(key: KeyItem) {
+        val token = _state.value.token ?: return
+        runTask {
+            RemoteClient.deleteKey(token, key.idKeys)
+            reloadKeys(token)
+        }
+    }
+
+    fun runBulk(action: String) {
+        val token = _state.value.token ?: return
+        runTask {
+            val result = RemoteClient.bulkKeys(token, action)
+            _state.value = _state.value.copy(message = "${result.count} key(s) affected")
+            reloadKeys(token)
+        }
+    }
+
+    fun createReferral() {
+        val token = _state.value.token ?: return
+        if (_state.value.profile?.level != 1) {
+            _state.value = _state.value.copy(message = "Only admins can create referrals")
+            return
+        }
+        val grant = _state.value.referralGrant.toIntOrNull()
+        if (grant == null || grant <= 0) {
+            _state.value = _state.value.copy(message = "Enter a valid grant")
+            return
+        }
+        runTask {
+            val referral = RemoteClient.createReferral(token, grant)
+            _state.value = _state.value.copy(
+                message = "Referral created: ${referral.code}",
+                referralGrant = ""
+            )
+            loadReferrals(token)
+        }
+    }
+
+    fun changePassword() {
+        val token = _state.value.token ?: return
+        val snapshot = _state.value
+        if (snapshot.currentPassword.isBlank()) {
+            _state.value = snapshot.copy(message = "Enter your current password")
+            return
+        }
+        if (snapshot.newPassword != snapshot.confirmNewPassword) {
+            _state.value = snapshot.copy(message = "Passwords do not match")
+            return
+        }
+        if (snapshot.newPassword.length < 6) {
+            _state.value = snapshot.copy(message = "New password must be at least 6 characters")
+            return
+        }
+        runTask {
+            RemoteClient.changePassword(token, snapshot.currentPassword, snapshot.newPassword)
+            _state.value = _state.value.copy(
+                currentPassword = "",
+                newPassword = "",
+                confirmNewPassword = "",
+                message = "Password changed"
+            )
+        }
+    }
+
+    fun saveAdminUser() {
+        val token = _state.value.token ?: return
+        val form = _state.value.adminEdit ?: return
+        val level = form.level.toIntOrNull()
+        val saldo = form.saldo.toIntOrNull()
+        if (!isValidUsername(form.username)) {
+            _state.value =
+                _state.value.copy(message = "Username must be 3-32 letters, numbers, or underscores")
+            return
+        }
+        if (level !in 1..2 || saldo == null) {
+            _state.value = _state.value.copy(message = "Enter valid level and saldo")
+            return
+        }
+        runTask {
+            RemoteClient.adminEditUser(
+                token = token,
+                idUsers = form.user.idUsers,
+                level = level,
+                saldo = saldo,
+                status = if (form.status) 1 else 0
+            )
+            _state.value = _state.value.copy(adminEdit = null, message = "User updated")
+            loadAdmin(token)
+        }
+    }
+
+    fun deleteAdminUser(user: AdminUserItem) {
+        val token = _state.value.token ?: return
+        runTask {
+            RemoteClient.deleteUser(token, user.idUsers)
+            _state.value = _state.value.copy(message = "User deleted")
+            loadAdmin(token)
+        }
+    }
+
+    fun priceFor(form: GenerateForm = _state.value.generateForm): Int {
+        return (prices[form.duration] ?: 0) * (form.devices.toIntOrNull() ?: 1)
+    }
+
+    fun durationToHours(value: Int, unit: String): Int = when (unit) {
+        "Hour" -> value
+        "Day" -> value * 24
+        "Week" -> value * 7 * 24
+        "Month" -> value * 30 * 24
+        "Year" -> value * 365 * 24
+        else -> value * 24
+    }
+
+    fun priceForHours(durationHours: Int, devices: Int): Int {
+        val days = (durationHours + 23) / 24
+        val dayKeys = prices.keys.sorted()
+        var matched = dayKeys.last()
+        for (k in dayKeys) {
+            if (days <= k) {
+                matched = k; break
+            }
+        }
+        return (prices[matched] ?: 0) * devices
+    }
+
+    fun formatDuration(hours: Int): String = when {
+        hours >= 720 -> "${hours / 720}mo"
+        hours >= 168 -> "${hours / 168}w"
+        hours >= 24 -> "${hours / 24}d"
+        else -> "${hours}h"
+    }
+
+    fun generateKeyNew(game: String, durationHours: Int, devices: Int, customKey: String) {
+        val token = _state.value.token ?: return
+        val price = priceForHours(durationHours, devices)
+        if ((_state.value.profile?.saldo ?: 0) < price) {
+            _state.value = _state.value.copy(message = "Insufficient balance")
+            return
+        }
+        runTask {
+            val generated = RemoteClient.generateKey(
+                token,
+                game,
+                durationHours,
+                devices,
+                customKey.ifBlank { null })
+            _state.value = _state.value.copy(generatedKey = generated, message = "Key generated")
+            reloadKeys(token)
+            reloadProfile(token)
+        }
+    }
+
+    private fun reloadKeys(token: String) {
+        currentJob?.cancel()
+        currentJob = viewModelScope.launch {
+            _state.value = _state.value.copy(loadingKeys = true, keysPage = 1)
+            try { loadKeys(token, page = 1) } catch (_: Exception) {}
+            _state.value = _state.value.copy(loadingKeys = false)
+        }
+    }
+
+    private fun reloadProfile(token: String) {
+        viewModelScope.launch {
+            _state.value = _state.value.copy(loadingProfile = true)
+            try { loadProfile(token) } catch (_: Exception) {}
+            _state.value = _state.value.copy(loadingProfile = false)
+        }
+    }
+
+    private fun restore() {
+        viewModelScope.launch {
+            val rememberedEmail = sessionManager.getRememberedEmail()
+            val rememberedPassword = sessionManager.getRememberedPassword()
+            val remembered = PanelUiState(
+                booting = false,
+                email = rememberedEmail,
+                password = rememberedPassword,
+                rememberMe = rememberedEmail.isNotBlank() || rememberedPassword.isNotBlank()
+            )
+            if (mode == PanelRootMode.AuthOnly) {
+                _state.value = remembered
+            } else {
+                val token = sessionManager.getToken()
+                if (token == null) {
+                    _state.value = remembered
+                } else {
+                    _state.value = _state.value.copy(token = token, booting = false, loading = true, loadingKeys = true, loadingGames = true, loadingProfile = true, loadingReferrals = true)
+                    try {
+                        loadWorkspace(token)
+                        _state.value = _state.value.copy(loading = false)
+                    } catch (error: Exception) {
+                        sessionManager.clear()
+                        _state.value = remembered.copy(
+                            message = "Session expired. Sign in again."
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    private fun refresh(destination: Destination) {
+        val token = _state.value.token ?: return
+        val now = System.currentTimeMillis()
+        if (now - lastRefreshTime < 1000) return
+        lastRefreshTime = now
+        refreshJob?.cancel()
+        refreshJob = viewModelScope.launch {
+            _state.value = _state.value.copy(message = null)
+            if (!_state.value.gamesLoaded) {
+                _state.value = _state.value.copy(loadingGames = true)
+                try { loadGames(token) } catch (_: Exception) {}
+                _state.value = _state.value.copy(loadingGames = false)
+            }
+            when (destination) {
+                Destination.KEYS -> {
+                    _state.value = _state.value.copy(loadingKeys = true, keysPage = 1)
+                    try { loadKeys(token, page = 1) } catch (_: Exception) {}
+                    _state.value = _state.value.copy(loadingKeys = false)
+                }
+                Destination.GAMES -> {}
+                Destination.ACCOUNT -> {
+                    _state.value = _state.value.copy(loadingProfile = true)
+                    try { loadProfile(token) } catch (_: Exception) {}
+                    _state.value = _state.value.copy(loadingProfile = false)
+                }
+                Destination.REFERRALS -> {
+                    _state.value = _state.value.copy(loadingReferrals = true)
+                    try { loadReferrals(token) } catch (_: Exception) {}
+                    _state.value = _state.value.copy(loadingReferrals = false)
+                }
+                Destination.ADMIN -> {
+                    _state.value = _state.value.copy(loadingAdmin = true)
+                    try { loadAdmin(token) } catch (_: Exception) {}
+                    _state.value = _state.value.copy(loadingAdmin = false)
+                }
+            }
+        }
+    }
+
+    fun loadMoreKeys() {
+        val token = _state.value.token ?: return
+        val snapshot = _state.value
+        val nextPage = snapshot.keysPage + 1
+        val loaded = snapshot.keys.size
+        if (loaded >= snapshot.keysTotal || snapshot.loadingKeys) return
+        _state.value = snapshot.copy(loadingKeys = true)
+        currentJob?.cancel()
+        currentJob = viewModelScope.launch {
+            try {
+                loadKeys(token, page = nextPage, append = true)
+                _state.value = _state.value.copy(loadingKeys = false, keysPage = nextPage)
+            } catch (_: Exception) {
+                _state.value = _state.value.copy(loadingKeys = false)
+            }
+        }
+    }
+
+    private suspend fun loadGames(token: String) {
+        val games = RemoteClient.listGames(token)
+        _state.value = _state.value.copy(games = games, gamesLoaded = true)
+    }
+
+    private suspend fun loadWorkspace(token: String) {
+        coroutineScope {
+            _state.value = _state.value.copy(loadingGames = true, loadingProfile = true, loadingKeys = true, loadingReferrals = true, gamesLoaded = false)
+            val gamesDeferred = async { try { loadGames(token) } catch (_: Exception) {} finally { _state.value = _state.value.copy(loadingGames = false) } }
+            val profileDeferred = async { try { loadProfile(token) } catch (_: Exception) {} finally { _state.value = _state.value.copy(loadingProfile = false) } }
+            val keysDeferred = async { try { loadKeys(token, page = 1) } catch (_: Exception) {} finally { _state.value = _state.value.copy(loadingKeys = false) } }
+            val referralsDeferred = async { try { loadReferrals(token) } catch (_: Exception) {} finally { _state.value = _state.value.copy(loadingReferrals = false) } }
+            gamesDeferred.await()
+            profileDeferred.await()
+            keysDeferred.await()
+            referralsDeferred.await()
+        }
+    }
+
+    private suspend fun loadProfile(token: String) {
+        val profile = RemoteClient.getProfile(token)
+        _state.value = _state.value.copy(profile = profile)
+    }
+
+    private suspend fun loadKeys(token: String, page: Int = 1, append: Boolean = false) {
+        val resp = RemoteClient.listKeys(token, search = _state.value.keySearch, game = if (_state.value.keyGameFilter == "ALL") "" else _state.value.keyGameFilter, page = page, limit = 50)
+        val newKeys = if (append) _state.value.keys + resp.data else resp.data
+        _state.value = _state.value.copy(keys = newKeys, keysPage = page, keysTotal = resp.count)
+    }
+
+    private suspend fun loadReferrals(token: String) {
+        val resp = RemoteClient.listReferrals(token)
+        _state.value = _state.value.copy(referrals = resp.data)
+    }
+
+    private suspend fun loadAdmin(token: String) {
+        val resp = RemoteClient.adminUsers(token, search = _state.value.adminSearch)
+        _state.value = _state.value.copy(adminUsers = resp.data)
+    }
+
+    private var lastRefreshTime = 0L
+
+    private fun runTask(block: suspend () -> Unit) {
+        currentJob?.cancel()
+        currentJob = viewModelScope.launch {
+            _state.value = _state.value.copy(loading = true, message = null)
+            try {
+                block()
+            } catch (error: CancellationException) {
+                throw error
+            } catch (error: Exception) {
+                _state.value = _state.value.copy(message = error.message ?: "Operation failed")
+            } finally {
+                _state.value = _state.value.copy(loading = false)
+            }
+        }
+    }
+}
+
+private class PanelViewModelFactory(
+    private val sessionManager: SessionManager,
+    private val mode: PanelRootMode
+) : ViewModelProvider.Factory {
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : ViewModel> create(modelClass: Class<T>): T =
+        PanelViewModel(sessionManager, mode) as T
+}
+
+@Composable
+fun PanelRoot(
+    sessionManager: SessionManager,
+    mode: PanelRootMode = PanelRootMode.Full,
+    onAuthenticated: () -> Unit = {},
+    onNeedsLogin: () -> Unit = {}
+) {
+    val viewModel: PanelViewModel = viewModel(factory = PanelViewModelFactory(sessionManager, mode))
+    val state by viewModel.state.collectAsState()
+    val snackbar = remember { SnackbarHostState() }
+
+    LaunchedEffect(state.message) {
+        state.message?.let { snackbar.showSnackbar(it) }
+    }
+
+    LaunchedEffect(mode, state.booting, state.token) {
+        if (!state.booting) {
+            if (mode == PanelRootMode.AuthOnly && state.token != null) onAuthenticated()
+            if (mode == PanelRootMode.MainOnly && state.token == null) onNeedsLogin()
+        }
+    }
+
+    when {
+        state.booting -> LoadingScreen()
+        state.token == null -> if (mode == PanelRootMode.MainOnly) LoadingScreen() else AuthEntryScreen(
+            state,
+            viewModel
+        )
+
+        else -> if (mode == PanelRootMode.AuthOnly) LoadingScreen() else MainUseCaseShell(
+            state,
+            viewModel,
+            snackbar
+        )
+    }
+    if (state.token == null && (state.loading || state.message != null)) {
+        AuthLoadingOverlay(state.message, viewModel::dismissError, state.loading)
+    }
+}
+
+enum class PanelRootMode { Full, AuthOnly, MainOnly }
+
+@Composable
+private fun LoadingScreen() {
+    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        CircularProgressIndicator()
+    }
+}
+
+@Composable
+private fun AuthLoadingOverlay(error: String?, onDismiss: () -> Unit, isLoading: Boolean) {
+    val infiniteTransition = rememberInfiniteTransition()
+    val rotation by infiniteTransition.animateFloat(
+        0f,
+        360f,
+        infiniteRepeatable(tween(2000, easing = LinearEasing), RepeatMode.Restart)
+    )
+    val dots = remember { listOf("  ", ". ", "..", "...") }
+    var dotIndex by remember { mutableIntStateOf(0) }
+    LaunchedEffect(Unit) {
+        while (true) {
+            delay(500)
+            dotIndex = (dotIndex + 1) % dots.size
+        }
+    }
+    val bits = remember { (1..24).map { if ((0..1).random() == 0) "0" else "1" } }
+
+    Box(
+        Modifier
+            .fillMaxSize()
+            .background(Color.Black.copy(alpha = 0.65f))
+            .clickable(onClick = {}),
+        contentAlignment = Alignment.Center
+    ) {
+        Surface(
+            shape = RoundedCornerShape(20.dp),
+            color = MaterialTheme.colorScheme.surface,
+            shadowElevation = 12.dp
+        ) {
+            Column(
+                Modifier
+                    .padding(36.dp)
+                    .widthIn(max = 300.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                if (error != null && !isLoading) {
+                    Icon(
+                        Icons.Default.Block,
+                        null,
+                        Modifier.size(40.dp),
+                        tint = MaterialTheme.colorScheme.error
+                    )
+                    Spacer(Modifier.height(16.dp))
+                    Text(
+                        error,
+                        fontSize = 13.sp,
+                        color = MaterialTheme.colorScheme.error,
+                        letterSpacing = 0.5.sp,
+                        textAlign = TextAlign.Center
+                    )
+                    Spacer(Modifier.height(20.dp))
+                    Button(onClick = onDismiss, shape = RoundedCornerShape(10.dp)) {
+                        Text("DISMISS", letterSpacing = 1.sp)
+                    }
+                } else {
+                    Text(
+                        "╔═══╗╔═══╗╔═══╗",
+                        fontFamily = FontFamily.Monospace,
+                        fontSize = 8.sp,
+                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.35f)
+                    )
+                    Spacer(Modifier.height(4.dp))
+                    Text(
+                        bits.joinToString(" "),
+                        fontFamily = FontFamily.Monospace,
+                        fontSize = 7.sp,
+                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
+                        letterSpacing = 1.sp
+                    )
+                    Spacer(Modifier.height(16.dp))
+                    Icon(
+                        Icons.Default.Key,
+                        null,
+                        Modifier
+                            .size(48.dp)
+                            .graphicsLayer { rotationZ = rotation },
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                    Spacer(Modifier.height(16.dp))
+                    Text(
+                        "KEYMASTER",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 18.sp,
+                        letterSpacing = 4.sp
+                    )
+                    Spacer(Modifier.height(4.dp))
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            "AUTHENTICATING",
+                            fontSize = 10.sp,
+                            color = MaterialTheme.colorScheme.primary,
+                            letterSpacing = 2.sp
+                        )
+                        Text(
+                            dots[dotIndex],
+                            fontSize = 12.sp,
+                            color = MaterialTheme.colorScheme.primary,
+                            letterSpacing = 1.sp
+                        )
+                    }
+                    Spacer(Modifier.height(20.dp))
+                    CircularProgressIndicator(Modifier.size(26.dp), strokeWidth = 2.dp)
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun MainUseCaseShell(state: PanelUiState, vm: PanelViewModel, snackbar: SnackbarHostState) {
+    val destinations = remember(state.profile?.level) {
+        val adminOnly = setOf(Destination.ADMIN, Destination.GAMES)
+        if (state.profile?.level == 1) Destination.entries else Destination.entries.filterNot { it in adminOnly }
+    }
+
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbar) },
+        topBar = {
+            TopAppBar(
+                title = { Text(state.destination.label, fontWeight = FontWeight.Bold) },
+                actions = {
+                    if (state.loading || state.loadingKeys || state.loadingGames || state.loadingProfile || state.loadingReferrals || state.loadingAdmin) CircularProgressIndicator(
+                        Modifier.size(22.dp),
+                        strokeWidth = 2.dp
+                    )
+                    IconButton(onClick = vm::refreshCurrent) { Icon(Icons.Default.Refresh, null) }
+
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
+            )
+        },
+        bottomBar = {
+            NavigationBar(containerColor = MaterialTheme.colorScheme.background) {
+                destinations.forEach { dest ->
+                    NavigationBarItem(
+                        selected = state.destination == dest,
+                        onClick = { vm.select(dest) },
+                        icon = { Icon(dest.icon, null, Modifier.size(22.dp)) },
+                        label = {
+                            Text(
+                                dest.label,
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Medium
+                            )
+                        },
+                        colors = NavigationBarItemDefaults.colors(
+                            selectedIconColor = MaterialTheme.colorScheme.primary,
+                            selectedTextColor = MaterialTheme.colorScheme.primary,
+                            unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(
+                                alpha = 0.6f
+                            ),
+                            unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(
+                                alpha = 0.6f
+                            ),
+                            indicatorColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
+                        )
+                    )
+                }
+            }
+        }
+    ) { padding ->
+        Box(
+            Modifier
+                .fillMaxSize()
+                .padding(padding)) {
+            when (state.destination) {
+                Destination.KEYS -> KeysWorkspaceScreen(state, vm)
+                Destination.GAMES -> ManageGamesScreen(state, vm)
+                Destination.ACCOUNT -> AccountScreen(state, vm)
+                Destination.REFERRALS -> ReferralHubScreen(state, vm)
+                Destination.ADMIN -> AdminConsoleScreen(state, vm)
+            }
+        }
+    }
+    state.confirmAction?.let { confirm ->
+        val icon = when (confirm.kind) {
+            "deleteKey", "bulkDeleteAll", "bulkDeleteExpired", "bulkDeleteUnused", "deleteAdmin" -> Icons.Default.Delete
+            "resetDevices", "bulkResetAll" -> Icons.Default.RestartAlt
+            else -> null
+        }
+        AlertDialog(
+            onDismissRequest = vm::dismissConfirm,
+            shape = RoundedCornerShape(20.dp),
+            containerColor = MaterialTheme.colorScheme.surface,
+            titleContentColor = MaterialTheme.colorScheme.onSurface,
+            textContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            icon = icon?.let {
+                {
+                    Icon(
+                        it,
+                        null,
+                        Modifier.size(24.dp),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
+            },
+            title = {
+                Text(
+                    when (confirm.kind) {
+                        "deleteKey" -> "Delete key"
+                        "resetDevices" -> "Reset devices"
+                        "deleteAdmin" -> "Delete user"
+                        "bulkDeleteAll" -> "Delete all keys"
+                        "bulkDeleteExpired" -> "Delete expired keys"
+                        "bulkDeleteUnused" -> "Delete unused keys"
+                        "bulkResetAll" -> "Reset all keys"
+                        else -> "Confirm"
+                    },
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            text = {
+                Text(
+                    when (confirm.kind) {
+                        "deleteKey" -> "Delete this key? This cannot be undone."
+                        "resetDevices" -> "Reset all device bindings for this key?"
+                        "deleteAdmin" -> "Delete user ${confirm.user?.username ?: ""}? This cannot be undone."
+                        "bulkDeleteAll" -> "Delete all keys? This cannot be undone."
+                        "bulkDeleteExpired" -> "Delete all expired keys?"
+                        "bulkDeleteUnused" -> "Delete all keys that have never been used?"
+                        "bulkResetAll" -> "Reset all keys? Device bindings will be cleared."
+                        else -> "Proceed?"
+                    }
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = vm::executeConfirmed,
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                ) {
+                    Text("Confirm", fontWeight = FontWeight.SemiBold)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = vm::dismissConfirm) {
+                    Text(
+                        "Cancel",
+                        fontWeight = FontWeight.Medium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        )
+    }
+    state.datePickerForKey?.let { key ->
+        val datePickerState = rememberDatePickerState()
+        val datePickerColors = DatePickerDefaults.colors(
+            containerColor = MaterialTheme.colorScheme.surface,
+            dayContentColor = MaterialTheme.colorScheme.onSurface,
+            todayContentColor = MaterialTheme.colorScheme.primary,
+            selectedDayContainerColor = MaterialTheme.colorScheme.primary,
+            selectedDayContentColor = MaterialTheme.colorScheme.onPrimary,
+            todayDateBorderColor = MaterialTheme.colorScheme.primary
+        )
+        DatePickerDialog(
+            onDismissRequest = vm::dismissDatePicker,
+            shape = RoundedCornerShape(20.dp),
+            colors = DatePickerDefaults.colors(
+                containerColor = MaterialTheme.colorScheme.surface
+            ),
+            confirmButton = {
+                Button(
+                    onClick = {
+                        datePickerState.selectedDateMillis?.let { millis ->
+                            val date = java.time.Instant.ofEpochMilli(millis)
+                                .atZone(java.time.ZoneId.systemDefault())
+                                .toLocalDate()
+                                .toString()
+                            vm.setKeyExpiry(key.idKeys, date)
+                        }
+                        vm.dismissDatePicker()
+                    },
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier.padding(end = 16.dp, bottom = 8.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                ) { Text("Set", fontWeight = FontWeight.SemiBold) }
+            },
+            dismissButton = {
+                TextButton(
+                    modifier = Modifier.padding(bottom = 8.dp),
+                    onClick = vm::dismissDatePicker
+                ) {
+                    Text(
+                        "Cancel",
+                        fontWeight = FontWeight.Medium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        ) {
+            DatePicker(state = datePickerState, colors = datePickerColors)
+        }
+    }
+}
+
+@Composable
+private fun AuthEntryScreen(state: PanelUiState, vm: PanelViewModel) {
+    Surface(
+        Modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background
+    ) {
+        Column(
+            Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Spacer(Modifier.height(36.dp))
+            BinaryRow()
+            Spacer(Modifier.height(20.dp))
+            Text(
+                "╔═══╗╔═══╗╔═══╗╔═══╗╔═══╗╔═══╗╔═══╗",
+                fontFamily = FontFamily.Monospace,
+                fontSize = 8.sp,
+                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f)
+            )
+            Spacer(Modifier.height(8.dp))
+            Text(
+                "KEYMASTER ADMIN",
+                fontWeight = FontWeight.Bold,
+                fontSize = 22.sp,
+                letterSpacing = 6.sp
+            )
+            Text(
+                "Panel App — System Auth",
+                fontSize = 11.sp,
+                color = MaterialTheme.colorScheme.primary,
+                letterSpacing = 2.sp
+            )
+            Spacer(Modifier.height(20.dp))
+            BinaryRow()
+            Spacer(Modifier.height(28.dp))
+            Surface(
+                shape = RoundedCornerShape(12.dp),
+                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+            ) {
+                Row(Modifier.padding(4.dp)) {
+                    val tabs = listOf("SIGN IN", "SIGN UP")
+                    tabs.forEachIndexed { i, label ->
+                        val selected =
+                            (state.authMode == AuthMode.SIGN_IN && i == 0) || (state.authMode == AuthMode.SIGN_UP && i == 1)
+                        Surface(
+                            shape = RoundedCornerShape(10.dp),
+                            color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant.copy(
+                                alpha = 0.3f
+                            ),
+                            onClick = { vm.setAuthMode(if (i == 0) AuthMode.SIGN_IN else AuthMode.SIGN_UP) }
+                        ) {
+                            Text(
+                                label,
+                                Modifier.padding(horizontal = 28.dp, vertical = 12.dp),
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                letterSpacing = 1.sp,
+                                color = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                }
+            }
+            Spacer(Modifier.height(28.dp))
+            OutlinedTextField(
+                value = state.email,
+                onValueChange = { vm.updateAuth(email = it) },
+                label = { Text("ADMIN EMAIL", fontSize = 10.sp, letterSpacing = 1.sp) },
+                leadingIcon = { Icon(Icons.Default.Badge, null, Modifier.size(18.dp)) },
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                shape = RoundedCornerShape(10.dp),
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(Modifier.height(14.dp))
+            val hidePass = state.authMode == AuthMode.SIGN_IN
+            var passwordVisible by remember { mutableStateOf(false) }
+            OutlinedTextField(
+                value = state.password,
+                onValueChange = { vm.updateAuth(password = it) },
+                label = { Text("ENCRYPTED PASS", fontSize = 10.sp, letterSpacing = 1.sp) },
+                leadingIcon = { Icon(Icons.Default.LockReset, null, Modifier.size(18.dp)) },
+                trailingIcon = if (hidePass) {
+                    {
+                        IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                            Icon(
+                                if (passwordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                                null,
+                                Modifier.size(18.dp)
+                            )
+                        }
+                    }
+                } else null,
+                singleLine = true,
+                visualTransformation = if (hidePass && !passwordVisible) PasswordVisualTransformation() else VisualTransformation.None,
+                shape = RoundedCornerShape(10.dp),
+                modifier = Modifier.fillMaxWidth()
+            )
+            if (state.authMode == AuthMode.SIGN_UP) {
+                Spacer(Modifier.height(14.dp))
+                OutlinedTextField(
+                    value = state.username,
+                    onValueChange = { vm.updateAuth(username = it) },
+                    label = { Text("USERNAME", fontSize = 10.sp, letterSpacing = 1.sp) },
+                    leadingIcon = { Icon(Icons.Default.Person, null, Modifier.size(18.dp)) },
+                    singleLine = true,
+                    shape = RoundedCornerShape(10.dp),
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(Modifier.height(14.dp))
+                OutlinedTextField(
+                    value = state.referralCode,
+                    onValueChange = { vm.updateAuth(referral = it) },
+                    label = { Text("REFERRAL CODE", fontSize = 10.sp, letterSpacing = 1.sp) },
+                    leadingIcon = { Icon(Icons.Default.Share, null, Modifier.size(18.dp)) },
+                    singleLine = true,
+                    shape = RoundedCornerShape(10.dp),
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+            Spacer(Modifier.height(12.dp))
+            if (state.authMode == AuthMode.SIGN_IN) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Checkbox(
+                        checked = state.rememberMe,
+                        onCheckedChange = { vm.updateAuth(remember = it) })
+                    Text("Remember device", fontSize = 12.sp)
+                }
+            }
+            Spacer(Modifier.height(16.dp))
+            Button(
+                onClick = vm::submitAuth,
+                enabled = !state.loading,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp),
+                shape = RoundedCornerShape(10.dp)
+            ) {
+                Icon(Icons.Default.Key, null, Modifier.size(18.dp))
+                Spacer(Modifier.width(8.dp))
+                Text("Authorize Access", fontWeight = FontWeight.SemiBold, letterSpacing = 1.sp)
+            }
+            Spacer(Modifier.weight(1f))
+            Spacer(Modifier.height(12.dp))
+            BinaryRow()
+            Spacer(Modifier.height(8.dp))
+        }
+    }
+}
+
+@Composable
+private fun BinaryRow() {
+    val bits = remember { (1..24).map { if ((0..1).random() == 0) "0" else "1" } }
+    Text(
+        bits.joinToString(" "),
+        fontFamily = FontFamily.Monospace,
+        fontSize = 9.sp,
+        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.25f),
+        letterSpacing = 2.sp
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun KeysWorkspaceScreen(state: PanelUiState, vm: PanelViewModel) {
+    val context = LocalContext.current
+    var menuExpanded by remember { mutableStateOf(false) }
+    var showGenerate by remember { mutableStateOf(false) }
+    val gameFilters = listOf("ALL") + state.games.filter { it.active }.map { it.code }
+    val filteredKeys = if (state.keyGameFilter == "ALL") state.keys
+    else state.keys.filter { it.game == state.keyGameFilter }
+    val total = filteredKeys.size
+    val expired = filteredKeys.count {
+        it.expiredDate != null && it.expiredDate.replace(" ", "T")
+            .take(19) < java.time.LocalDateTime.now().toString().take(19)
+    }
+    val unused = filteredKeys.count { it.expiredDate == null }
+    val active = total - expired - unused
+    var showStats by remember { mutableStateOf(false) }
+    Box(Modifier.fillMaxSize()) {
+        Column(Modifier.fillMaxSize()) {
+            Column(Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    OutlinedTextField(
+                        value = state.keySearch,
+                        onValueChange = vm::updateKeySearch,
+                        placeholder = { Text("Search", fontSize = 13.sp) },
+                        leadingIcon = { Icon(Icons.Default.Search, null, Modifier.size(20.dp)) },
+                        singleLine = true,
+                        shape = RoundedCornerShape(10.dp),
+                        textStyle = LocalTextStyle.current.copy(fontSize = 13.sp),
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(52.dp)
+                    )
+                    Spacer(Modifier.width(6.dp))
+                    Surface(
+                        shape = RoundedCornerShape(10.dp),
+                        color = MaterialTheme.colorScheme.surfaceVariant,
+                        tonalElevation = 2.dp
+                    ) {
+                        IconButton(onClick = vm::toggleReveal) {
+                            Icon(
+                                if (state.revealKeys) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                                null,
+                                Modifier.size(18.dp)
+                            )
+                        }
+                    }
+                    Spacer(Modifier.width(4.dp))
+                    Surface(
+                        shape = RoundedCornerShape(10.dp),
+                        color = MaterialTheme.colorScheme.surfaceVariant,
+                        tonalElevation = 2.dp
+                    ) {
+                        Box {
+                            IconButton(onClick = { menuExpanded = true }) {
+                                Icon(Icons.Default.MoreVert, null, Modifier.size(18.dp))
+                            }
+                            DropdownMenu(
+                                expanded = menuExpanded,
+                                onDismissRequest = { menuExpanded = false }) {
+                                DropdownMenuItem(text = { Text("Delete all") },
+                                    onClick = {
+                                        menuExpanded = false; vm.requestConfirm("bulkDeleteAll")
+                                    })
+                                DropdownMenuItem(text = { Text("Delete expired") },
+                                    onClick = {
+                                        menuExpanded = false; vm.requestConfirm("bulkDeleteExpired")
+                                    })
+                                DropdownMenuItem(text = { Text("Delete unused") },
+                                    onClick = {
+                                        menuExpanded = false; vm.requestConfirm("bulkDeleteUnused")
+                                    })
+                                DropdownMenuItem(text = { Text("Reset all") },
+                                    onClick = {
+                                        menuExpanded = false; vm.requestConfirm("bulkResetAll")
+                                    })
+                                DropdownMenuItem(text = { Text("Export") },
+                                    onClick = {
+                                        menuExpanded = false; copyText(
+                                        context,
+                                        "All keys",
+                                        state.keys.joinToString("\n") { it.userKey })
+                                    })
+                            }
+                        }
+                    }
+                }
+                Spacer(Modifier.height(12.dp))
+                Row(
+                    Modifier.horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Surface(
+                        shape = RoundedCornerShape(8.dp),
+                        color = if (showStats) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant.copy(
+                            alpha = 0.6f
+                        ),
+                        onClick = { showStats = !showStats }
+                    ) {
+                        Box(Modifier.padding(horizontal = 10.dp, vertical = 8.dp)) {
+                            Icon(
+                                Icons.Default.Equalizer,
+                                null,
+                                Modifier.size(18.dp),
+                                tint = if (showStats) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                    gameFilters.forEach { game ->
+                        val selected = state.keyGameFilter == game
+                        Surface(
+                            shape = RoundedCornerShape(8.dp),
+                            color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant.copy(
+                                alpha = 0.6f
+                            ),
+                            onClick = { vm.updateKeyGameFilter(game) }
+                        ) {
+                            Text(
+                                game,
+                                Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
+                                fontSize = 11.sp,
+                                fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
+                                letterSpacing = 1.sp,
+                                color = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                }
+                Spacer(Modifier.height(12.dp))
+                if (showStats) {
+                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            StatCard("Total", "$total", Icons.Default.Key, Modifier.weight(1f))
+                            StatCard("Active", "$active", Icons.Default.CheckCircle, Modifier.weight(1f))
+                        }
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            StatCard("Expired", "$expired", Icons.Default.Block, Modifier.weight(1f))
+                            StatCard("Unused", "$unused", Icons.Default.Schedule, Modifier.weight(1f))
+                        }
+                    }
+                    Spacer(Modifier.height(12.dp))
+                }
+            }
+            val scrollState = rememberLazyListState()
+            LazyColumn(
+                modifier = Modifier.weight(1f),
+                state = scrollState,
+                contentPadding = PaddingValues(horizontal = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(14.dp)
+            ) {
+                if (filteredKeys.isEmpty() && !state.loadingKeys) {
+                    item { EmptyCard("No keys found") }
+                } else if (filteredKeys.isEmpty()) {
+                    item {
+                        Box(Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
+                            CircularProgressIndicator(Modifier.size(24.dp), strokeWidth = 3.dp)
+                        }
+                    }
+                } else {
+                    items(filteredKeys, key = { it.idKeys }) { key ->
+                        KeyCard(key, state.revealKeys, vm, context)
+                    }
+                    if (state.loadingKeys) {
+                        item {
+                            Box(Modifier.fillMaxWidth().padding(16.dp), contentAlignment = Alignment.Center) {
+                                CircularProgressIndicator(Modifier.size(24.dp), strokeWidth = 3.dp)
+                            }
+                        }
+                    } else if (filteredKeys.size < state.keysTotal) {
+                        item {
+                            LaunchedEffect(scrollState) {
+                                val layoutInfo = scrollState.layoutInfo
+                                if (layoutInfo.visibleItemsInfo.lastOrNull()?.index
+                                    ?: 0 >= layoutInfo.totalItemsCount - 3
+                                ) {
+                                    vm.loadMoreKeys()
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        FloatingActionButton(
+            onClick = { showGenerate = true },
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(16.dp),
+            containerColor = MaterialTheme.colorScheme.primary
+        ) {
+            Icon(Icons.Default.Add, null)
+        }
+    }
+    if (showGenerate) {
+        val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+        ModalBottomSheet(onDismissRequest = { showGenerate = false }, sheetState = sheetState) {
+            GenerateKeySheetContent(state, vm, context, onDismiss = { showGenerate = false })
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun GenerateKeySheetContent(
+    state: PanelUiState,
+    vm: PanelViewModel,
+    context: Context,
+    onDismiss: () -> Unit
+) {
+    var selectedGame by remember { mutableStateOf("PUBG") }
+    var durationValue by remember { mutableStateOf("7") }
+    var durationUnit by remember { mutableStateOf("Day") }
+    var deviceCount by remember { mutableStateOf("1") }
+    var customKey by remember { mutableStateOf("") }
+    var gameExpanded by remember { mutableStateOf(false) }
+    var unitExpanded by remember { mutableStateOf(false) }
+    val units = listOf("Hour", "Day", "Week", "Month", "Year")
+    val durationHours = vm.durationToHours(durationValue.toIntOrNull() ?: 0, durationUnit)
+    val price = vm.priceForHours(durationHours, deviceCount.toIntOrNull() ?: 1)
+
+    Column(
+        Modifier
+            .padding(24.dp)
+            .verticalScroll(rememberScrollState()),
+        verticalArrangement = Arrangement.spacedBy(14.dp)
+    ) {
+        Text("GENERATE KEY", fontWeight = FontWeight.Bold, fontSize = 18.sp, letterSpacing = 4.sp)
+        Box {
+            OutlinedTextField(
+                value = state.games.firstOrNull { it.code == selectedGame }?.displayName
+                    ?: selectedGame,
+                onValueChange = {},
+                readOnly = true,
+                label = { Text("Game") },
+                trailingIcon = { TextButton(onClick = { gameExpanded = true }) { Text("▼") } },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { gameExpanded = true },
+                shape = RoundedCornerShape(10.dp)
+            )
+            DropdownMenu(expanded = gameExpanded, onDismissRequest = { gameExpanded = false }) {
+                state.games.filter { it.active }.forEach { game ->
+                    DropdownMenuItem(
+                        text = { Text(game.displayName) },
+                        onClick = { selectedGame = game.code; gameExpanded = false })
+                }
+            }
+        }
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            OutlinedTextField(
+                value = durationValue,
+                onValueChange = { durationValue = it.filter { c -> c.isDigit() }.take(6) },
+                label = { Text("Duration") },
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                modifier = Modifier.weight(1f),
+                shape = RoundedCornerShape(10.dp)
+            )
+            Box(Modifier.weight(1f)) {
+                OutlinedTextField(
+                    value = durationUnit,
+                    onValueChange = {},
+                    readOnly = true,
+                    label = { Text("Unit") },
+                    trailingIcon = { TextButton(onClick = { unitExpanded = true }) { Text("▼") } },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { unitExpanded = true },
+                    shape = RoundedCornerShape(10.dp)
+                )
+                DropdownMenu(expanded = unitExpanded, onDismissRequest = { unitExpanded = false }) {
+                    units.forEach { unit ->
+                        DropdownMenuItem(
+                            text = { Text(unit) },
+                            onClick = { durationUnit = unit; unitExpanded = false })
+                    }
+                }
+            }
+        }
+        OutlinedTextField(
+            value = deviceCount,
+            onValueChange = { deviceCount = it.filter { c -> c.isDigit() }.take(3) },
+            label = { Text("Devices") },
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(10.dp)
+        )
+        OutlinedTextField(
+            value = customKey,
+            onValueChange = {
+                customKey =
+                    it.filter { c -> c.isLetterOrDigit() || c == '-' || c == '_' }
+                        .take(32)
+            },
+            label = { Text("Custom key (optional)") },
+            supportingText = if (customKey.isNotEmpty() && customKey.length < 8) { { Text("Min 8 characters", color = MaterialTheme.colorScheme.error) } } else { null },
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(10.dp)
+        )
+        Row(
+            Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text("Price: $price saldo", fontWeight = FontWeight.SemiBold)
+            Text(
+                "Balance: ${state.profile?.saldo ?: 0}",
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                fontSize = 12.sp
+            )
+        }
+        Button(
+            onClick = {
+                vm.generateKeyNew(
+                    selectedGame,
+                    durationHours,
+                    deviceCount.toIntOrNull() ?: 1,
+                    customKey
+                )
+                onDismiss()
+            },
+            enabled = !state.loading && (durationValue.toIntOrNull()
+                ?: 0) > 0 && (deviceCount.toIntOrNull() ?: 0) in 1..100 && (customKey.isBlank() || customKey.length >= 8),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(50.dp),
+            shape = RoundedCornerShape(10.dp)
+        ) {
+            Icon(Icons.Default.Key, null, Modifier.size(18.dp))
+            Spacer(Modifier.width(8.dp))
+            Text("Generate key", fontWeight = FontWeight.SemiBold, letterSpacing = 1.sp)
+        }
+        Spacer(Modifier.height(16.dp))
+    }
+}
+
+
+
+@Composable
+private fun KeyCard(key: KeyItem, reveal: Boolean, vm: PanelViewModel, context: Context) {
+    val nowStr = remember { java.time.LocalDateTime.now().toString().take(19) }
+    val isActive = key.expiredDate != null
+    val isExpired = key.expiredDate != null && key.expiredDate.replace(" ", "T")
+        .take(19) < nowStr
+    val statusColor = when {
+        isExpired -> Color(0xFFF87171)
+        isActive -> Color(0xFF22C55E)
+        else -> Color(0xFFA3A3A3)
+    }
+    val statusLabel = when {
+        isExpired -> "Expired"
+        isActive -> "Active"
+        else -> "Unused"
+    }
+    Surface(
+        shape = RoundedCornerShape(16.dp),
+        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+    ) {
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .padding(start = 0.dp)) {
+            Surface(
+                color = statusColor,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(3.dp)
+                    .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
+            ) {}
+            Column(
+                Modifier.padding(12.dp, 10.dp, 12.dp, 10.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        key.game,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        letterSpacing = 1.sp,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    Box(
+                        Modifier
+                            .size(5.dp)
+                            .clip(RoundedCornerShape(3.dp))
+                            .background(statusColor))
+                    Spacer(Modifier.width(4.dp))
+                    Text(
+                        statusLabel,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = statusColor
+                    )
+                    Spacer(Modifier.weight(1f))
+                    Text(
+                        vm.formatDuration(key.duration),
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                val keyText = if (reveal) key.userKey else maskKey(key.userKey)
+                OutlinedTextField(
+                    value = keyText,
+                    onValueChange = {},
+                    readOnly = true,
+                    label = { Text("Key") },
+                    singleLine = true,
+                    textStyle = LocalTextStyle.current.copy(
+                        fontFamily = FontFamily.Monospace,
+                        fontSize = 13.sp,
+                        letterSpacing = 1.sp
+                    ),
+                    trailingIcon = {
+                        IconButton(onClick = { copyText(context, "License key", key.userKey) }) {
+                            Icon(
+                                Icons.Default.ContentCopy,
+                                null,
+                                Modifier.size(18.dp),
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    },
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    Row(Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
+                        if (key.expiredDate != null) {
+                            Icon(
+                                Icons.Default.DateRange,
+                                null,
+                                Modifier.size(12.dp),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(
+                                    alpha = 0.6f
+                                )
+                            )
+                            Spacer(Modifier.width(4.dp))
+                            Text(
+                                key.expiredDate.replace("T", " ").take(16),
+                                fontSize = 11.sp,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        } else {
+                            Text(
+                                "Not activated",
+                                fontSize = 11.sp,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(
+                                    alpha = 0.5f
+                                )
+                            )
+                        }
+                        Spacer(Modifier.width(8.dp))
+                        Icon(
+                            Icons.Default.Person,
+                            null,
+                            Modifier.size(12.dp),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                        )
+                        Spacer(Modifier.width(4.dp))
+                        Text(
+                            "${deviceCount(key.devices)}/${key.maxDevices}",
+                            fontSize = 11.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Surface(
+                            shape = RoundedCornerShape(8.dp),
+                            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                            onClick = { vm.requestConfirm("resetDevices", key = key) }) {
+                            Box(Modifier.padding(6.dp)) {
+                                Icon(
+                                    Icons.Default.RestartAlt,
+                                    null,
+                                    Modifier.size(16.dp),
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                        Surface(
+                            shape = RoundedCornerShape(8.dp),
+                            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                            onClick = { vm.requestDatePicker(key) }) {
+                            Box(Modifier.padding(6.dp)) {
+                                Icon(
+                                    Icons.Default.DateRange,
+                                    null,
+                                    Modifier.size(16.dp),
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                        Surface(
+                            shape = RoundedCornerShape(8.dp),
+                            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                            onClick = { vm.requestConfirm("deleteKey", key = key) }) {
+                            Box(Modifier.padding(6.dp)) {
+                                Icon(
+                                    Icons.Default.Delete,
+                                    null,
+                                    Modifier.size(16.dp),
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun GenerateKeyPanel(state: PanelUiState, vm: PanelViewModel, context: Context) {
+    val form = state.generateForm
+    var gameExpanded by remember { mutableStateOf(false) }
+    var durationExpanded by remember { mutableStateOf(false) }
+    val selectedGame =
+        state.games.firstOrNull { it.code == form.game }?.displayName ?: form.game
+    val durationOptions = listOf(
+        1 to "1 Day",
+        3 to "3 Days",
+        7 to "7 Days",
+        14 to "14 Days",
+        30 to "1 Month"
+    )
+    val selectedDuration =
+        durationOptions.firstOrNull { it.first == form.duration }?.second ?: "${form.duration} Days"
+    ElevatedCard {
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Text(
+                "Generate working key",
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                "Pick game, duration, and devices. Price updates before confirmation.",
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            Box {
+                OutlinedTextField(
+                    value = selectedGame,
+                    onValueChange = {},
+                    readOnly = true,
+                    label = { Text("Game") },
+                    trailingIcon = { TextButton(onClick = { gameExpanded = true }) { Text("▼") } },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { gameExpanded = true }
+                )
+                DropdownMenu(expanded = gameExpanded, onDismissRequest = { gameExpanded = false }) {
+                    state.games.filter { it.active }.forEach { game ->
+                        DropdownMenuItem(
+                            text = { Text(game.displayName) },
+                            onClick = {
+                                vm.updateGenerate(form.copy(game = game.code))
+                                gameExpanded = false
+                            }
+                        )
+                    }
+                }
+            }
+
+            Box {
+                OutlinedTextField(
+                    value = selectedDuration,
+                    onValueChange = {},
+                    readOnly = true,
+                    label = { Text("Days / Months") },
+                    trailingIcon = {
+                        TextButton(onClick = {
+                            durationExpanded = true
+                        }) { Text("▼") }
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { durationExpanded = true }
+                )
+                DropdownMenu(
+                    expanded = durationExpanded,
+                    onDismissRequest = { durationExpanded = false }) {
+                    durationOptions.forEach { (days, label) ->
+                        DropdownMenuItem(
+                            text = { Text(label) },
+                            onClick = {
+                                vm.updateGenerate(form.copy(duration = days))
+                                durationExpanded = false
+                            }
+                        )
+                    }
+                }
+            }
+            OutlinedTextField(
+                value = form.devices,
+                onValueChange = { value ->
+                    vm.updateGenerate(form.copy(devices = value.filter { it.isDigit() }))
+                },
+                label = { Text("Devices") },
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                modifier = Modifier.fillMaxWidth()
+            )
+            PanelTextField(
+                form.customKey,
+                { vm.updateGenerate(form.copy(customKey = it)) },
+                "Custom suffix (optional)"
+            )
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text("Price", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(
+                    "${vm.priceFor()} saldo",
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+            Button(
+                onClick = vm::generateKey,
+                enabled = !state.loading,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Confirm and generate")
+            }
+        }
+    }
+    state.generatedKey?.let { generated ->
+        AlertDialog(
+            onDismissRequest = vm::dismissGenerated,
+            title = { Text("Key ready") },
+            text = { Text(generated.key) },
+            confirmButton = {
+                Button(onClick = {
+                    copyText(context, "License key", generated.key)
+                    vm.dismissGenerated()
+                }) { Text("Copy") }
+            },
+            dismissButton = { TextButton(onClick = vm::dismissGenerated) { Text("Close") } }
+        )
+    }
+}
+
+@Composable
+private fun AccountScreen(state: PanelUiState, vm: PanelViewModel) {
+    val profile = state.profile
+    LazyColumn(
+        contentPadding = PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(14.dp)
+    ) {
+        item {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
+            ) {
+                Column(Modifier.padding(20.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                    val initial = (profile?.username?.firstOrNull()?.uppercase() ?: "?")
+                    val statusActive = profile?.status == 1
+                    Box(
+                        Modifier.size(64.dp).clip(CircleShape)
+                            .background(if (statusActive) Color(0xFF22C55E).copy(alpha = 0.15f) else MaterialTheme.colorScheme.surfaceVariant),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(initial, fontWeight = FontWeight.Bold, fontSize = 26.sp, color = if (statusActive) Color(0xFF22C55E) else MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                    Spacer(Modifier.height(12.dp))
+                    Text(profile?.username ?: "-", fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                    if (profile?.email?.isNotEmpty() == true) {
+                        Text(profile.email, color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 13.sp)
+                    }
+                    Spacer(Modifier.height(8.dp))
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                        AssistChip(
+                            onClick = {},
+                            label = { Text(if (profile?.level == 1) "Admin" else "Reseller", fontSize = 12.sp) },
+                            colors = AssistChipDefaults.assistChipColors(containerColor = if (profile?.level == 1) Color(0xFFA855F7).copy(alpha = 0.15f) else Color(0xFF3B82F6).copy(alpha = 0.15f), labelColor = if (profile?.level == 1) Color(0xFFA855F7) else Color(0xFF3B82F6))
+                        )
+                        AssistChip(
+                            onClick = {},
+                            label = { Text(standingLabel(profile), fontSize = 12.sp) },
+                            colors = AssistChipDefaults.assistChipColors(containerColor = if (statusActive) Color(0xFF22C55E).copy(alpha = 0.15f) else Color(0xFFF87171).copy(alpha = 0.15f), labelColor = if (statusActive) Color(0xFF22C55E) else Color(0xFFF87171))
+                        )
+                    }
+                }
+            }
+        }
+        item {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
+            ) {
+                Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                        Column {
+                            Text("Saldo", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp)
+                            Text("${profile?.saldo ?: 0}", fontWeight = FontWeight.Bold, fontSize = 20.sp)
+                        }
+                        Column(horizontalAlignment = Alignment.End) {
+                            Text("Level", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp)
+                            Text("${profile?.level ?: 2}", fontWeight = FontWeight.Bold, fontSize = 20.sp)
+                        }
+                    }
+                    if (profile?.createdAt != null) {
+                        HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f))
+                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                            Text("Member since", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp)
+                            Text(profile.createdAt.take(10), fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                    }
+                }
+            }
+        }
+        item {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
+            ) {
+                Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text("Change password", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                    OutlinedTextField(
+                        value = state.currentPassword,
+                        onValueChange = { vm.updateAccount(current = it) },
+                        label = { Text("Current password") },
+                        singleLine = true,
+                        visualTransformation = PasswordVisualTransformation(),
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp)
+                    )
+                    OutlinedTextField(
+                        value = state.newPassword,
+                        onValueChange = { vm.updateAccount(newPassword = it) },
+                        label = { Text("New password") },
+                        singleLine = true,
+                        visualTransformation = PasswordVisualTransformation(),
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp)
+                    )
+                    OutlinedTextField(
+                        value = state.confirmNewPassword,
+                        onValueChange = { vm.updateAccount(confirm = it) },
+                        label = { Text("Confirm new password") },
+                        singleLine = true,
+                        visualTransformation = PasswordVisualTransformation(),
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp)
+                    )
+                    Button(
+                        onClick = vm::changePassword,
+                        enabled = !state.loading,
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp)
+                    ) { Text("Change password") }
+                }
+            }
+        }
+        item {
+            OutlinedButton(
+                onClick = vm::signOut,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error)
+            ) {
+                Icon(Icons.AutoMirrored.Filled.Logout, null)
+                Spacer(Modifier.width(8.dp))
+                Text("Sign out")
+            }
+        }
+    }
+}
+
+@Composable
+private fun ReferralHubScreen(state: PanelUiState, vm: PanelViewModel) {
+    val context = LocalContext.current
+    LazyColumn(
+        contentPadding = PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(14.dp)
+    ) {
+        if (state.profile?.level == 1) {
+            item {
+                Surface(
+                    shape = RoundedCornerShape(16.dp),
+                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+                ) {
+                    Column(
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(start = 0.dp)) {
+//                        Surface(
+//                            color = MaterialTheme.colorScheme.primary,
+//                            modifier = Modifier
+//                                .fillMaxWidth()
+//                                .height(3.dp)
+//                                .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
+//                        ) {}
+                        Column(
+                            Modifier.padding(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            Text(
+                                "Issue referral",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 18.sp
+                            )
+                            PanelTextField(state.referralGrant, vm::updateReferralGrant, "Saldo grant")
+                            Button(
+                                onClick = vm::createReferral,
+                                enabled = !state.loading,
+                                modifier = Modifier.fillMaxWidth()
+                            ) { Text("Create code") }
+                        }
+                    }
+                }
+            }
+        }
+        item { SectionTitle("Referral codes") }
+        if (state.referrals.isEmpty()) {
+            item { EmptyCard("No referral codes yet") }
+        } else {
+            items(state.referrals, key = { it.idReff }) { referral ->
+                Surface(
+                    shape = RoundedCornerShape(16.dp),
+                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+                ) {
+                    Column(
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(start = 0.dp)) {
+//                        Surface(
+//                            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f),
+//                            modifier = Modifier
+//                                .fillMaxWidth()
+//                                .height(3.dp)
+//                                .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
+//                        ) {}
+                        Column(
+                            Modifier.padding(12.dp, 10.dp, 12.dp, 10.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+//                            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+//                                Text(
+//                                    referral.code,
+//                                    fontSize = 12.sp,
+//                                    fontWeight = FontWeight.SemiBold,
+//                                    letterSpacing = 1.sp,
+//                                    color = MaterialTheme.colorScheme.primary
+//                                )
+//                                Spacer(Modifier.weight(1f))
+//
+//                            }
+                            OutlinedTextField(
+                                value = referral.code,
+                                onValueChange = {},
+                                readOnly = true,
+                                label = { Text("Code") },
+                                singleLine = true,
+                                textStyle = LocalTextStyle.current.copy(
+                                    fontFamily = FontFamily.Monospace,
+                                    fontSize = 13.sp,
+                                    letterSpacing = 1.sp
+                                ),
+                                trailingIcon = {
+                                    IconButton(onClick = { copyText(context, "Referral code", referral.code) }) {
+                                        Icon(
+                                            Icons.Default.ContentCopy,
+                                            null,
+                                            Modifier.size(18.dp),
+                                            tint = MaterialTheme.colorScheme.primary
+                                        )
+                                    }
+                                },
+                                shape = RoundedCornerShape(12.dp),
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                                Row(Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(
+                                        Icons.Default.Person,
+                                        null,
+                                        Modifier.size(12.dp),
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                                    )
+                                    Spacer(Modifier.width(4.dp))
+                                    Text(
+                                        referral.createdBy,
+                                        fontSize = 11.sp,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                    Spacer(Modifier.width(4.dp))
+                                    Text(
+                                        "Grant ${referral.setSaldo}",
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.Medium,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun AdminConsoleScreen(state: PanelUiState, vm: PanelViewModel) {
+    val context = LocalContext.current
+    val edit = state.adminEdit
+    LazyColumn(
+        contentPadding = PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(14.dp)
+    ) {
+        item {
+            OutlinedTextField(
+                value = state.adminSearch,
+                onValueChange = vm::updateAdminSearch,
+                label = { Text("Search platform users") },
+                leadingIcon = { Icon(Icons.Default.Search, null) },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+        items(state.adminUsers, key = { it.idUsers }) { user ->
+            val statusActive = user.status == 1
+            val statusColor = if (statusActive) Color(0xFF22C55E) else Color(0xFFA1A1AA)
+            val levelLabel = if (user.level == 1) "Admin" else "Reseller"
+            val initial = user.username.firstOrNull()?.uppercase() ?: "?"
+
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(14.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
+            ) {
+                Row(
+                    Modifier.padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(
+                        Modifier
+                            .size(48.dp)
+                            .clip(CircleShape)
+                            .background(if (statusActive) Color(0xFF22C55E).copy(alpha = 0.12f) else MaterialTheme.colorScheme.surfaceVariant),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            initial,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 20.sp,
+                            color = if (statusActive) Color(0xFF22C55E) else MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    Spacer(Modifier.width(14.dp))
+                    Column(Modifier.weight(1f)) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                user.username,
+                                fontWeight = FontWeight.SemiBold,
+                                fontSize = 15.sp,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier.weight(1f, fill = false)
+                            )
+                            Spacer(Modifier.width(6.dp))
+                            Surface(
+                                shape = RoundedCornerShape(4.dp),
+                                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+                            ) {
+                                Text(
+                                    levelLabel,
+                                    fontSize = 10.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                                )
+                            }
+                        }
+                        Spacer(Modifier.height(3.dp))
+                        Text(
+                            user.email.ifBlank { "No email" },
+                            fontSize = 13.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                    Spacer(Modifier.width(8.dp))
+                    Column(horizontalAlignment = Alignment.End) {
+                        Text(
+                            "${user.saldo}",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 16.sp,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Text(
+                            "saldo",
+                            fontSize = 9.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+                HorizontalDivider(
+                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
+                Row(
+                    Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(Modifier.size(8.dp).clip(CircleShape).background(statusColor))
+                    Spacer(Modifier.width(4.dp))
+                    Text(
+                        if (statusActive) "Active" else "Inactive",
+                        fontSize = 12.sp,
+                        color = statusColor
+                    )
+                    Spacer(Modifier.weight(1f))
+                    TextButton(
+                        onClick = { vm.showAdminEdit(user) },
+                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
+                    ) {
+                        Icon(Icons.Default.Edit, null, Modifier.size(16.dp))
+                        Spacer(Modifier.width(4.dp))
+                        Text("Edit", fontSize = 12.sp)
+                    }
+                    TextButton(
+                        onClick = { vm.requestConfirm("deleteAdmin", user = user) },
+                        colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error),
+                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
+                    ) {
+                        Icon(Icons.Default.Delete, null, Modifier.size(16.dp))
+                        Spacer(Modifier.width(4.dp))
+                        Text("Delete", fontSize = 12.sp)
+                    }
+                }
+            }
+        }
+    }
+    if (edit != null) {
+        ModalBottomSheet(onDismissRequest = { vm.showAdminEdit(null) }) {
+            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Text(
+                    "Edit ${edit.user.username}",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold
+                )
+                OutlinedTextField(
+                    value = edit.username,
+                    onValueChange = {},
+                    readOnly = true,
+                    label = { Text("Username") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                OutlinedTextField(
+                    value = edit.email,
+                    onValueChange = {},
+                    readOnly = true,
+                    label = { Text("Email") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                PanelTextField(edit.saldo, { vm.updateAdminEdit(edit.copy(saldo = it)) }, "Saldo")
+                PanelTextField(edit.level, { vm.updateAdminEdit(edit.copy(level = it)) }, "Level")
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    Text("Status", modifier = Modifier.weight(1f))
+                    Switch(
+                        checked = edit.status,
+                        onCheckedChange = { vm.updateAdminEdit(edit.copy(status = it)) }
+                    )
+                }
+                Button(
+                    onClick = vm::saveAdminUser,
+                    enabled = !state.loading,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Save user")
+                }
+                Spacer(Modifier.height(24.dp))
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ManageGamesScreen(state: PanelUiState, vm: PanelViewModel) {
+    var showAddDialog by remember { mutableStateOf(false) }
+    var newCode by remember { mutableStateOf("") }
+    var newDisplayName by remember { mutableStateOf("") }
+    var newLibName by remember { mutableStateOf("") }
+    val context = LocalContext.current
+    var gameToDelete by remember { mutableStateOf<String?>(null) }
+    var selectedGameForEdit by remember { mutableStateOf<GameItem?>(null) }
+    var filePickerGameCode by remember { mutableStateOf<String?>(null) }
+    var editDisplayName by remember { mutableStateOf("") }
+    var editLibName by remember { mutableStateOf("") }
+
+    val filePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent(),
+        onResult = { uri ->
+            uri?.let {
+                val targetGameCode = filePickerGameCode
+                filePickerGameCode = null
+                val game = state.games.firstOrNull { g -> g.code == targetGameCode } ?: return@let
+                val libName = game.libName.trim()
+                if (libName.isBlank()) return@let
+                val token = state.token ?: return@let
+                try {
+                    val inputStream = context.contentResolver.openInputStream(it)
+                    val bytes = inputStream?.readBytes() ?: return@let
+                    inputStream.close()
+                    if (bytes.size > 10 * 1024 * 1024) {
+                        vm.setError("File exceeds 10MB limit")
+                        return@let
+                    }
+                    vm.uploadLib(token, bytes, libName)
+                    selectedGameForEdit = null
+                } catch (_: Exception) {}
+            }
+        }
+    )
+
+    Column(Modifier.fillMaxSize()) {
+        LazyColumn(
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            if (state.profile?.level == 1) {
+                item {
+                    Button(
+                        onClick = {
+                            newCode = ""
+                            newDisplayName = ""
+                            newLibName = ""
+                            showAddDialog = true
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Icon(Icons.Default.Add, null, Modifier.size(18.dp))
+                        Spacer(Modifier.width(8.dp))
+                        Text("Add Game")
+                    }
+                }
+            }
+            if (state.games.isEmpty()) {
+                item {
+                    Column(
+                        Modifier.fillMaxWidth().padding(vertical = 48.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Icon(Icons.Default.SportsEsports, null, Modifier.size(48.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f))
+                        Spacer(Modifier.height(12.dp))
+                        Text("No games loaded", color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f), fontSize = 14.sp)
+                    }
+                }
+            } else {
+                items(state.games, key = { it.code }) { game ->
+                    val avatarColor = remember(game.code) {
+                        val hash = game.code.hashCode()
+                        val hue = ((hash % 360) + 360) % 360
+                        Color.hsl(hue.toFloat(), 0.55f, 0.45f)
+                    }
+                    ElevatedCard(
+                        onClick = {
+                            selectedGameForEdit = game
+                            editDisplayName = game.displayName
+                            editLibName = game.libName
+                        },
+                        colors = CardDefaults.elevatedCardColors(
+                            containerColor = if (game.active)
+                                MaterialTheme.colorScheme.surface
+                            else
+                                MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
+                        ),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Row(
+                            Modifier.fillMaxWidth().padding(14.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(46.dp)
+                                    .clip(CircleShape)
+                                    .background(avatarColor.copy(alpha = 0.12f)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = game.code.take(2).uppercase(),
+                                    fontWeight = FontWeight.ExtraBold,
+                                    fontSize = 15.sp,
+                                    color = avatarColor
+                                )
+                            }
+                            Spacer(Modifier.width(14.dp))
+                            Column(Modifier.weight(1f)) {
+                                Text(
+                                    game.displayName,
+                                    fontWeight = FontWeight.SemiBold,
+                                    fontSize = 15.sp,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                                Spacer(Modifier.height(3.dp))
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Text(
+                                        game.code,
+                                        fontFamily = FontFamily.Monospace,
+                                        fontSize = 11.sp,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                                    )
+                                    if (game.libName.isNotBlank()) {
+                                        Spacer(Modifier.width(6.dp))
+                                        Box(
+                                            Modifier
+                                                .size(3.dp)
+                                                .clip(CircleShape)
+                                                .background(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f))
+                                        )
+                                        Spacer(Modifier.width(6.dp))
+                                        Text(
+                                            game.libName,
+                                            fontSize = 10.sp,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis,
+                                            modifier = Modifier.widthIn(max = 100.dp)
+                                        )
+                                    }
+                                }
+                            }
+                            Surface(
+                                shape = RoundedCornerShape(6.dp),
+                                color = if (game.active) Color(0xFF10B981).copy(alpha = 0.12f) else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                            ) {
+                                Text(
+                                    text = if (game.active) "ON" else "OFF",
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                    fontSize = 10.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = if (game.active) Color(0xFF10B981) else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    if (showAddDialog) {
+        val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+        ModalBottomSheet(
+            onDismissRequest = { showAddDialog = false },
+            sheetState = sheetState
+        ) {
+            Column(
+                Modifier.padding(16.dp).padding(bottom = 32.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Text("Add Game", fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                OutlinedTextField(
+                    value = newCode,
+                    onValueChange = {
+                        newCode = it.uppercase().filter { c -> c.isLetterOrDigit() || c == '_' }.take(20)
+                    },
+                    label = { Text("Code") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                OutlinedTextField(
+                    value = newDisplayName,
+                    onValueChange = { newDisplayName = it.take(60) },
+                    label = { Text("Display name") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                OutlinedTextField(
+                    value = newLibName,
+                    onValueChange = { newLibName = it.filter { c -> c.isLetterOrDigit() || c == '_' || c == '-' || c == '.' }.take(64) },
+                    label = { Text("Lib name") },
+                    placeholder = { Text("e.g. libcocos2dlua.so") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Button(
+                    onClick = {
+                        if (newCode.length >= 2 && newDisplayName.isNotBlank()) {
+                            vm.createGame(newCode.uppercase(), newDisplayName.trim(), newLibName.trim())
+                            showAddDialog = false
+                        }
+                    },
+                    enabled = newCode.length >= 2 && newDisplayName.isNotBlank(),
+                    modifier = Modifier.fillMaxWidth()
+                ) { Text("Create") }
+            }
+        }
+    }
+
+    selectedGameForEdit?.let { game ->
+        ModalBottomSheet(
+            onDismissRequest = { selectedGameForEdit = null },
+            sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+        ) {
+            Column(
+                Modifier.padding(16.dp).padding(bottom = 32.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                var editActive by remember { mutableStateOf(game.active) }
+                Text("Edit ${game.code}", fontWeight = FontWeight.Bold, fontSize = 18.sp)
+
+                OutlinedTextField(
+                    value = editDisplayName,
+                    onValueChange = { editDisplayName = it.take(60) },
+                    label = { Text("Display name") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                OutlinedTextField(
+                    value = editLibName,
+                    onValueChange = { editLibName = it.filter { c -> c.isLetterOrDigit() || c == '_' || c == '-' || c == '.' }.take(64) },
+                    label = { Text("Lib name") },
+                    placeholder = { Text("e.g. libcocos2dlua.so") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Row(
+                    Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text("Active", fontWeight = FontWeight.Medium)
+                    Switch(
+                        checked = editActive,
+                        onCheckedChange = { editActive = it }
+                    )
+                }
+
+                if (state.profile?.level == 1) {
+                    OutlinedButton(
+                        onClick = {
+                            filePickerGameCode = game.code
+                            filePickerLauncher.launch("application/octet-stream")
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(10.dp),
+                        enabled = game.libName.isNotBlank()
+                    ) {
+                        Text(if (game.libName.isNotBlank()) "Upload lib as ${game.libName}" else "Set lib name first")
+                    }
+                }
+
+                Row(
+                    Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    if (state.profile?.level == 1) {
+                        OutlinedButton(
+                            onClick = {
+                                gameToDelete = game.code
+                                selectedGameForEdit = null
+                            },
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(10.dp),
+                            colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error)
+                        ) {
+                            Icon(Icons.Default.Delete, null, Modifier.size(16.dp))
+                            Spacer(Modifier.width(4.dp))
+                            Text("Delete")
+                        }
+
+                        Button(
+                            onClick = {
+                                vm.updateGame(game.code, displayName = editDisplayName.trim(), libName = editLibName.trim(), active = editActive)
+                                selectedGameForEdit = null
+                            },
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(10.dp)
+                        ) {
+                            Text("Save")
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    gameToDelete?.let { code ->
+        AlertDialog(
+            onDismissRequest = { gameToDelete = null },
+            shape = RoundedCornerShape(20.dp),
+            containerColor = MaterialTheme.colorScheme.surface,
+            title = { Text("Delete game", fontWeight = FontWeight.Bold) },
+            text = { Text("Delete game \"$code\"? This cannot be undone.") },
+            confirmButton = {
+                Button(
+                    onClick = { gameToDelete = null; vm.deleteGame(code) },
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                ) { Text("Delete") }
+            },
+            dismissButton = {
+                TextButton(onClick = { gameToDelete = null }) { Text("Cancel") }
+            }
+        )
+    }
+    if (state.overwriteLibName != null) {
+        AlertDialog(
+            onDismissRequest = vm::dismissOverwriteLib,
+            shape = RoundedCornerShape(20.dp),
+            containerColor = MaterialTheme.colorScheme.surface,
+            title = { Text("Lib already exists", fontWeight = FontWeight.Bold) },
+            text = { Text("${state.overwriteLibName?.removeSuffix(".so") ?: ""}.so already exists in storage. Overwrite it?") },
+            confirmButton = {
+                Button(
+                    onClick = vm::confirmOverwriteLib,
+                    shape = RoundedCornerShape(12.dp)
+                ) { Text("Overwrite") }
+            },
+            dismissButton = {
+                TextButton(onClick = vm::dismissOverwriteLib) { Text("Cancel") }
+            }
+        )
+    }
+    if (state.uploadProgress >= 0) {
+        AlertDialog(
+            onDismissRequest = {},
+            shape = RoundedCornerShape(20.dp),
+            containerColor = MaterialTheme.colorScheme.surface,
+            title = { Text("Uploading lib", fontWeight = FontWeight.Bold) },
+            text = {
+                Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
+                    CircularProgressIndicator(
+                        progress = { state.uploadProgress / 100f },
+                        modifier = Modifier.size(64.dp),
+                        strokeWidth = 6.dp
+                    )
+                    Spacer(Modifier.height(12.dp))
+                    Text("${state.uploadProgress}%", fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                }
+            },
+            confirmButton = {}
+        )
+    }
+}
+
+@Composable
+private fun StatCard(
+    label: String,
+    value: String,
+    icon: ImageVector,
+    modifier: Modifier = Modifier
+) {
+    ElevatedCard(modifier) {
+        Column(
+            Modifier.padding(10.dp),
+            verticalArrangement = Arrangement.spacedBy(2.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                Icon(icon, null, Modifier.size(14.dp), tint = MaterialTheme.colorScheme.primary)
+                Text(label, fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            Text(value, fontSize = 20.sp, fontWeight = FontWeight.Black)
+        }
+    }
+}
+
+@Composable
+private fun UseCaseCard(title: String, body: String, icon: ImageVector, onClick: () -> Unit) {
+    Card(
+        onClick = onClick,
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+    ) {
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(icon, null, tint = MaterialTheme.colorScheme.onPrimaryContainer)
+            Spacer(Modifier.width(12.dp))
+            Column {
+                Text(
+                    title,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+                Text(body, color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.75f))
+            }
+        }
+    }
+}
+
+@Composable
+private fun SectionTitle(text: String) {
+    Text(text, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+}
+
+@Composable
+private fun EmptyCard(text: String) {
+    Card(Modifier.fillMaxWidth()) {
+        Text(text, Modifier.padding(18.dp), color = MaterialTheme.colorScheme.onSurfaceVariant)
+    }
+}
+
+@Composable
+private fun PanelTextField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    label: String,
+    password: Boolean = false
+) {
+    val keyboardType = when {
+        password -> KeyboardType.Password
+        label.contains("email", ignoreCase = true) -> KeyboardType.Email
+        label.contains("saldo", ignoreCase = true) ||
+                label.contains("level", ignoreCase = true) ||
+                label.contains("grant", ignoreCase = true) -> KeyboardType.Number
+
+        else -> KeyboardType.Text
+    }
+    OutlinedTextField(
+        value = value,
+        onValueChange = onValueChange,
+        label = { Text(label) },
+        singleLine = true,
+        keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
+        visualTransformation = if (password) PasswordVisualTransformation() else VisualTransformation.None,
+        modifier = Modifier.fillMaxWidth()
+    )
+}
+
+@Composable
+private fun ChipGroup(items: List<String>, selected: String, onSelected: (String) -> Unit) {
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        items.chunked(3).forEach { row ->
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                row.forEach { item ->
+                    FilterChip(
+                        selected = item == selected,
+                        onClick = { onSelected(item) },
+                        label = { Text(item) })
+                }
+            }
+        }
+    }
+}
+
+private fun standingLabel(profile: UserProfile?): String {
+    return when (profile?.status) {
+        1 -> "Active"
+        0 -> "Limited"
+        else -> "Unknown"
+    }
+}
+
+private fun maskKey(key: String): String =
+    if (key.length <= 6) "••••••" else key.take(5) + "••••" + key.takeLast(3)
+
+private fun formatTimestamp(iso: String?): String {
+    if (iso == null) return "-"
+    return try {
+        val instant = java.time.Instant.parse(iso)
+        val local = instant.atZone(java.time.ZoneId.systemDefault())
+        local.format(java.time.format.DateTimeFormatter.ofPattern("MMM dd, HH:mm"))
+    } catch (_: Exception) {
+        iso.take(16)
+    }
+}
+
+private fun deviceCount(devices: String?): Int =
+    devices?.split(",")?.filter { it.isNotBlank() }?.size ?: 0
+
+private fun copyText(context: Context, label: String, value: String) {
+    val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+    clipboard.setPrimaryClip(ClipData.newPlainText(label, value))
+}
+
+private fun isValidEmail(value: String): Boolean {
+    return value.length in 5..120 && value.contains("@") && value.substringAfter("@").contains(".")
+}
+
+private fun isValidUsername(value: String): Boolean {
+    return value.length in 3..32 && value.all { it.isLetterOrDigit() || it == '_' }
+}
